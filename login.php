@@ -1,258 +1,188 @@
-Ôªø<?php
-	require("../../../config.php");
+<?php 
+	
 	require("functions.php");
 	
-	//kui on juba sisse loginud siis suunan data lehele
-	if (isset($_SESSION["userId"])) {
+	// kui on juba sisse loginud siis suunan data lehele
+	if (isset($_SESSION["userId"])){
 		
 		//suunan sisselogimise lehele
 		header("Location: data.php");
 		exit();
 		
-		
-		
 	}
-	//echo hash("sha512", "Romil");
-
-	//GET ja POSTI muutujad
-	//var_dump($_POST);
+	
+	//echo hash("sha512", "b");
+	
+	
+	//GET ja POSTi muutujad
+	//var_dump($_GET);
 	//echo "<br>";
-	//var_dump ($_GET);
-	//IDEEKS ON TEHA VEEBILEHT, KUST SAAB REAALAJAS J√ÑLGIDA
-	//ERINEVATE SPORDIALADE TULEMUSI
+	//var_dump($_POST);
 	
-	//MUUTUJAD
-	$signupEmailError= "";
+	//echo strlen("‰ˆ");
+	
+	// MUUTUJAD
+	$signupEmailError = "";
+	$signupPasswordError = "";
 	$signupEmail = "";
-	$loginEmailError = "";
-	$loginPasswordError = "";
-	$signupEmail = "";
-	$signupPassword = "";
-	$Eesnimi = "";
-	$Perenimi = "";
-	$aadress = "";
-	$loginEmail = "";
+	$signupGender = "";
 	
-	
-	//$_post["signupEmail"];
-	
-	if(isset($_POST["signupEmail"])) {
+	// on ¸ldse olemas selline muutja
+	if( isset( $_POST["signupEmail"] ) ){
 		
 		//jah on olemas
-		//kas on t√ºhi
-		if(empty($_POST["signupEmail"])) {
+		//kas on t¸hi
+		if( empty( $_POST["signupEmail"] ) ){
 			
-			$signupEmailError="See v√§li on kohustuslik";
-		} else{
+			$signupEmailError = "See v‰li on kohustuslik";
 			
+		} else {
+			
+			// email olemas 
 			$signupEmail = $_POST["signupEmail"];
 			
 		}
-	}
-	
-	$signupPasswordError= "";
-	
-	if(isset($_POST["signupPassword"])) {
 		
-		if(empty($_POST["signupPassword"])) {
+	} 
+	
+	if( isset( $_POST["signupPassword"] ) ){
+		
+		if( empty( $_POST["signupPassword"] ) ){
 			
-			$signupPasswordError="Parool on kohustuslik";
+			$signupPasswordError = "Parool on kohustuslik";
 			
-		}else{
+		} else {
 			
-			//siia j√µuan siis kui parool oli olemas -isset
-			//ja parool ei olnud t√ºhi -empty
-			//kas parooli pikkus on v√§iksem kui 8
-			if(strlen($_POST["signupPassword"]) <8){
+			// siia jıuan siis kui parool oli olemas - isset
+			// parool ei olnud t¸hi -empty
+			
+			// kas parooli pikkus on v‰iksem kui 8 
+			if ( strlen($_POST["signupPassword"]) < 8 ) {
 				
-				$signupPasswordError="Parool peab olema v√§hemalt 8 t√§hem√§rki pikk!";
-				
+				$signupPasswordError = "Parool peab olema v‰hemalt 8 t‰hem‰rkki pikk";
+			
 			}
 			
 		}
 		
-	
-		
-		
-		
 	}
 	
-	$eesnimierror= "";
 	
-   if(isset($_POST["Eesnimi"])) {
+	// GENDER
+	if( isset( $_POST["signupGender"] ) ){
 		
+		if(!empty( $_POST["signupGender"] ) ){
 		
-		if(empty($_POST["Eesnimi"])) {
-			
-			$eesnimierror="See v√§li on kohustuslik";
-		}else{
-			
-			$Eesnimi = $_POST["Eesnimi"];
+			$signupGender = $_POST["signupGender"];
 			
 		}
-	}
-	
-	$Perenimierror= "";
-	
-	if(isset($_POST["Perenimi"])) {
 		
-		
-		if(empty($_POST["Perenimi"])) {
-			
-			$Perenimierror="See v√§li on kohustuslik";
-		}else {
-			
-			$Perenimi = $_POST["Perenimi"];
-			
-		}
-	}
-	
-	$Aadresserror= "";
-	
-	if(isset($_POST["aadress"])) {
-		
-		
-		if(empty($_POST["aadress"])) {
-			
-			$Aadresserror="See v√§li on kohustuslik";
-		}else{
-			
-			$aadress = $_POST["aadress"];
-			
-		}
-	}
-	
-	$loginEmailError = "";
-	if(isset($_POST["loginEmail"])) {
-		
-		
-		if(empty($_POST["loginEmail"])) {
-			
-			$loginEmailError="See v√§li on kohustuslik";
-		}else{
-			
-			$loginEmail = $_POST["loginEmail"];
-			
-			
-		}
-	}
-	
-	$loginPasswordError = "";
-	if(isset($_POST["loginPassword"])) {
-		
-		
-		if(empty($_POST["loginPassword"])) {
-			
-			$loginPasswordError="See v√§li on kohustuslik";
-			
-		}
-			
-	}
+	} 
 	
 	// peab olema email ja parool
-	// √ºhtegi errorit
+	// ¸htegi errorit
 	
-		if ( isset($_POST["signupPassword"]) &&
-		isset($_POST["signupEmail"]) &&
-		$signupEmailError == "" &&
-		empty($signupPasswordError)
-		
-	
-		
-
+	if ( isset($_POST["signupEmail"]) && 
+		 isset($_POST["signupPassword"]) && 
+		 $signupEmailError == "" && 
+		 empty($signupPasswordError)
 		) {
 		
-		//salvestame andmebaasi
-		echo "email: ".$signupEmail."<br>";
+		// salvestame ab'i
+		echo "Salvestan... <br>";
 		
+		echo "email: ".$signupEmail."<br>";
 		echo "password: ".$_POST["signupPassword"]."<br>";
 		
 		$password = hash("sha512", $_POST["signupPassword"]);
 		
 		echo "password hashed: ".$password."<br>";
 		
-		echo ": ".$Eesnimi."<br>";
-		echo ": ".$Perenimi."<br>";
-		echo ": ".$aadress."<br>";
 		
 		//echo $serverUsername;
 		
-		//√úhendus
+		// KASUTAN FUNKTSIOONI
+		$signupEmail = cleanInput($signupEmail);
 		
-		signup($signupEmail, $password, $Eesnimi, $Perenimi, $aadress);
+		signUp($signupEmail, cleanInput($password));
 		
+	
 	}
+	
+	
 	$error ="";
-	if(isset($_POST["loginEmail"]) && isset($_POST["loginPassword"]) &&
-	!empty($_POST["loginEmail"]) && !empty($_POST["loginPassword"])
-	) {
-		$error = login($_POST["loginEmail"], $_POST["loginPassword"]);
-		
-		
+	if ( isset($_POST["loginEmail"]) && 
+		isset($_POST["loginPassword"]) && 
+		!empty($_POST["loginEmail"]) && 
+		!empty($_POST["loginPassword"])
+	  ) {
+		  
+		$error = login(cleanInput($_POST["loginEmail"]), cleanInput($_POST["loginPassword"]));
 		
 	}
-	
-	
-
-	
-	
 	
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Logi sisse v√µi loo kasutaja</title>
+	<title>Logi sisse vıi loo kasutaja</title>
 </head>
 <body>
 
-	<h1>Logi sisse </h1>
+	<h1>Logi sisse</h1>
 	<form method="POST">
-		<p style="color:red;"><?=$error;?> </p>
-		
+		<p style="color:red;"><?=$error;?></p>
+		<label>E-post</label>
 		<br>
 		
-		<input name="loginEmail" placeholder="email" type="text" value="<?=$loginEmail;?>"><?php echo $loginEmailError; ?>
+		<input name="loginEmail" type="text">
 		<br><br>
 		
-		<input name="loginPassword" placeholder="parool" type="password"><?php echo $loginPasswordError; ?>
+		<input type="password" name="loginPassword" placeholder="Parool">
 		<br><br>
 		
 		<input type="submit" value="Logi sisse">
 		
+		
 	</form>
 	
 	
-	<h1>Loo kasutaja </h1>
+	<h1>Loo kasutaja</h1>
 	<form method="POST">
 		
+		<label>E-post</label>
+		<br>
 		
-		<input name="signupEmail" placeholder="E-post "type="text" value="<?=$signupEmail;?>"> <?php echo $signupEmailError; ?>
+		<input name="signupEmail" type="text" value="<?=$signupEmail;?>"> <?=$signupEmailError;?>
 		<br><br>
 		
-		<input name="signupPassword" placeholder="parool" type="password"> <?php echo $signupPasswordError; ?>
-		<br><br>
+		<?php if($signupGender == "male") { ?>
+			<input type="radio" name="signupGender" value="male" checked> Male<br>
+		<?php }else { ?>
+			<input type="radio" name="signupGender" value="male"> Male<br>
+		<?php } ?>
 		
-		<input name="Eesnimi" placeholder="Sisestage eesnimi" type="text"> <?php echo $eesnimierror; ?>
-		<br><br>
+		<?php if($signupGender == "female") { ?>
+			<input type="radio" name="signupGender" value="female" checked> Female<br>
+		<?php }else { ?>
+			<input type="radio" name="signupGender" value="female"> Female<br>
+		<?php } ?>
 		
-		<input name="Perenimi" placeholder="Sisestage Perekonnanimi" type="text"> <?php echo $Perenimierror; ?>
-		<br><br>
+		<?php if($signupGender == "other") { ?>
+			<input type="radio" name="signupGender" value="other" checked> Other<br>
+		<?php }else { ?>
+			<input type="radio" name="signupGender" value="other"> Other<br>
+		<?php } ?>
 		
-		<input name="aadress" placeholder="Sisestage aadress" type="text"> <?=$Aadresserror; ?>
-		<br><br>
 		
+		<br>
+		<input type="password" name="signupPassword" placeholder="Parool"> <?php echo $signupPasswordError; ?>
+		<br><br>
 		
 		<input type="submit" value="Loo kasutaja">
 		
-
 		
 	</form>
-	
-	
-	
-	
-	
+
 </body>
 </html>

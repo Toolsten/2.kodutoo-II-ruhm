@@ -1,30 +1,30 @@
 <?php
+	require("../../../config.php");
 	// functions.php
+	//var_dump($GLOBALS);
 	
-	// see fail peab olema kıigil lehtedel kus
+	// see fail, peab olema kıigil lehtedel kus 
 	// tahan kasutada SESSION muutujat
 	session_start();
-
 	
-	//****** SIGNUP******
+	//***************
+	//**** SIGNUP ***
+	//***************
 	
-	function signup($email, $parool, $eesnimi, $perenimi, $aadress) {
+	function signUp ($email, $password) {
 		
 		$database = "if16_StenT_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
-		
-		$stmt = $mysqli->prepare("INSERT INTO database1 (email, parool, eesnimi, perenimi, aadress) VALUES (?, ?, ?, ?, ?)");
-		
+		$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?, ?)");
+	
 		echo $mysqli->error;
 		
-		$stmt->bind_param("sssss", $email, $parool, $eesnimi, $perenimi, $aadress);
+		$stmt->bind_param("ss", $email, $password);
 		
-		if ($stmt->execute()) {
-			
+		if($stmt->execute()) {
 			echo "salvestamine ınnestus";
 		} else {
-			
-			echo "ERROR".$stmt->error;
+		 	echo "ERROR ".$stmt->error;
 		}
 		
 		$stmt->close();
@@ -32,15 +32,18 @@
 		
 	}
 	
-	$error = "";
 	
 	function login ($email, $password) {
 		
+		$error = "";
+		
 		$database = "if16_StenT_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
-		
-		$stmt = $mysqli->prepare("SELECT id, email, password, created FROM user_sample WHERE email = ?");
-		
+		$stmt = $mysqli->prepare("
+		SELECT id, email, password, created 
+		FROM user_sample
+		WHERE email = ?");
+	
 		echo $mysqli->error;
 		
 		//asendan k¸sim‰rgi
@@ -48,46 +51,108 @@
 		
 		//m‰‰ran v‰‰rtused muutujatesse
 		$stmt->bind_result($id, $emailFromDb, $passwordFromDb, $created);
-		
 		$stmt->execute();
 		
 		//andmed tulid andmebaasist vıi mitte
-		// on tıene kui tuli v‰hemalt ¸ks vaste
-		if($stmt->fetch()) {
+		// on tıene kui on v‰hemalt ¸ks vaste
+		if($stmt->fetch()){
 			
 			//oli sellise meiliga kasutaja
-			// password millega proovitakse sisse logida
+			//password millega kasutaja tahab sisse logida
 			$hash = hash("sha512", $password);
 			if ($hash == $passwordFromDb) {
-				echo"kasutaja logis sisse".$id;
 				
-				//m‰‰ran sessiooni muutujad, millele saan ligi teistelt lehtedelt
+				echo "Kasutaja logis sisse ".$id;
+				
+				//m‰‰ran sessiooni muutujad, millele saan ligi
+				// teistelt lehtedelt
 				$_SESSION["userId"] = $id;
 				$_SESSION["userEmail"] = $emailFromDb;
 				
-				$_SESSION["message"] = "<h1> Tere Tulemast!</h1>";
+				$_SESSION["message"] = "<h1>Tere tulemast!</h1>";
 				
 				header("Location: data.php");
 				exit();
 				
-				
-				}else{
-					$error = "Vale parool";
-				}
-				
-				
-		}else{
+			}else {
+				$error = "vale parool";
+			}
 			
-			//ei leidnud kasutajat selle meiliga
+			
+		} else {
+			
+			// ei leidnud kasutajat selle meiliga
 			$error = "ei ole sellist emaili";
 		}
 		
 		return $error;
 		
-	};
+	}
 	
-
-	function cleanInput($input) {
+	
+	function saveCar ($plate, $color) {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		$stmt = $mysqli->prepare("INSERT INTO Cars (plate, color) VALUES (?, ?)");
+	
+		echo $mysqli->error;
+		
+		$stmt->bind_param("ss", $plate, $color);
+		
+		if($stmt->execute()) {
+			echo "salvestamine ınnestus";
+		} else {
+		 	echo "ERROR ".$stmt->error;
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+	}
+	
+	
+	function getAllCars() {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		
+		$stmt = $mysqli->prepare("
+			SELECT id, plate, color
+			FROM Cars
+		");
+		echo $mysqli->error;
+		
+		$stmt->bind_result($id, $plate, $color);
+		$stmt->execute();
+		
+		
+		//tekitan massiivi
+		$result = array();
+		
+		// tee seda seni, kuni on rida andmeid
+		// mis vastab select lausele
+		while ($stmt->fetch()) {
+			
+			//tekitan objekti
+			$car = new StdClass();
+			
+			$car->id = $id;
+			$car->plate = $plate;
+			$car->carColor = $color;
+			
+			//echo $plate."<br>";
+			// iga kord massiivi lisan juurde nr m‰rgi
+			array_push($result, $car);
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+		return $result;
+	}
+	
+	function cleanInput($input){
 		
 		$input = trim($input);
 		$input = stripslashes($input);
@@ -97,96 +162,211 @@
 		
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*function sum($x, $y) {
+	function saveInterest ($interest) {
 		
-		return $x + $y;
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		$stmt = $mysqli->prepare("INSERT INTO interests (interest) VALUES (?)");
+	
+		echo $mysqli->error;
 		
+		$stmt->bind_param("s", $interest);
+		
+		if($stmt->execute()) {
+			echo "salvestamine ınnestus";
+		} else {
+		 	echo "ERROR ".$stmt->error;
+		}
+		
+		$stmt->close();
+		$mysqli->close();
 		
 	}
+	
+	function getAllInterests() {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		
+		$stmt = $mysqli->prepare("
+			SELECT id, interest
+			FROM interests
+		");
+		echo $mysqli->error;
+		
+		$stmt->bind_result($id, $interest);
+		$stmt->execute();
+		
+		
+		//tekitan massiivi
+		$result = array();
+		
+		// tee seda seni, kuni on rida andmeid
+		// mis vastab select lausele
+		while ($stmt->fetch()) {
+			
+			//tekitan objekti
+			$i = new StdClass();
+			
+			$i->id = $id;
+			$i->interest = $interest;
+		
+			array_push($result, $i);
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+		return $result;
+	}
+	
+	function getAllUserInterests() {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		
+		$stmt = $mysqli->prepare("
+			SELECT interest FROM interests
+			JOIN user_interests 
+			ON interests.id=user_interests.interest_id
+			WHERE user_interests.user_id = ?
+		");
+		echo $mysqli->error;
+		$stmt->bind_param("i", $_SESSION["userId"]);
+		
+		$stmt->bind_result($interest);
+		$stmt->execute();
+		
+		
+		//tekitan massiivi
+		$result = array();
+		
+		// tee seda seni, kuni on rida andmeid
+		// mis vastab select lausele
+		while ($stmt->fetch()) {
+			
+			//tekitan objekti
+			$i = new StdClass();
+			
+			$i->interest = $interest;
+		
+			array_push($result, $i);
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+		return $result;
+	}
+	
+	function saveUserInterest ($interest) {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		$stmt = $mysqli->prepare("
+			SELECT id FROM user_interests 
+			WHERE user_id=? AND interest_id=?
+		");
+		$stmt->bind_param("ii", $_SESSION["userId"], $interest);
+		$stmt->bind_result($id);
+		
+		$stmt->execute();
+		
+		if ($stmt->fetch()) {
+			// oli olemas juba selline rida
+			echo "juba olemas";
+			// p‰rast returni midagi edasi ei tehta funktsioonis
+			return;
+			
+		} 
+		
+		$stmt->close();
+		
+		// kui ei olnud siis sisestan
+		
+		$stmt = $mysqli->prepare("
+			INSERT INTO user_interests
+			(user_id, interest_id) VALUES (?, ?)
+		");
+		
+		echo $mysqli->error;
+		
+		$stmt->bind_param("ii", $_SESSION["userId"], $interest);
+		
+		if ($stmt->execute()) {
+			echo "salvestamine ınnestus";
+		} else {
+			echo "ERROR ".$stmt->error;
+		}
+		
+	}
+	
+	
+	
+	function saveScores ($league, $hometeam, $awayteam, $homescore, $awayscore) {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		$stmt = $mysqli->prepare("INSERT INTO savedScores (leaguename, hometeam, awayteam, homescore, awayscore) VALUES (?, ?, ?, ?, ?)");
+	
+		echo $mysqli->error;
+		
+		$stmt->bind_param("sssii", $league, $hometeam, $awayteam, $homescore, $awayscore);
+		
+		if($stmt->execute()) {
+			echo "salvestamine ınnestus";
+		} else {
+		 	echo "ERROR ".$stmt->error;
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+	}
+	
+	function getAllScores() {
+		
+		$database = "if16_StenT_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+		
+		$stmt = $mysqli->prepare("
+			SELECT id, leaguename, hometeam, awayteam, homescore, awayscore
+			FROM savedScores
+		");
+		echo $mysqli->error;
+		
+		$stmt->bind_result($id, $league, $hometeam, $awayteam, $homescore, $awayscore);
+		$stmt->execute();
+		
+		
+		//tekitan massiivi
+		$result = array();
+		
+		// tee seda seni, kuni on rida andmeid
+		// mis vastab select lausele
+		while ($stmt->fetch()) {
+			
+			//tekitan objekti
+			$scores = new StdClass();
+			
+			$scores->id = $id;
+			$scores->league = $league;
+			$scores->hometeam = $hometeam;
+			$scores->awayteam = $awayteam;
+			$scores->homescore = $homescore;
+			$scores->awayscore = $awayscore;
+			
+			
+			array_push($result, $scores);
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		
+		return $result;
+	}
+	
+	
 
-	function hello($firstname, $lastname) {
-		
-		return "Tere tulemast ".$firstname."".$lastname."!";
-	}
-	
-	
-	echo sum("Sten","Tool");
-	echo "<br>";
-	echo hello("Sten", "Tool");
-	echo "<br>";
-	
 	*/
-	
-	
-
-
-
-
 ?>
